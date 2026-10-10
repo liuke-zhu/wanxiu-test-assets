@@ -576,7 +576,7 @@ const App = {
       : [{ key:'all', label:'本周排班', cls:'g-a', dows }];
 
     /* 原表排版的关键：相邻两班是同一位老师时，合并成一个格子、名字居中只写一次。
-       例：1班某老师 2班（空） → 一个跨 2 列的格子写「某老师」 */
+       例：1班李红该 2班（空） → 一个跨 2 列的格子写「李红该」 */
     const buildRow = (dw, g) => {
       const ds = dateByDow[dw] || null;
       const st = dayState(dw);
@@ -1127,9 +1127,9 @@ const App = {
         每行一条，可以这样写：<br>
         <code style="display:block;margin-top:6px;padding:8px 10px;background:var(--rowh);
           border-radius:7px;font-size:12.5px;line-height:1.8">
-10月5日 某某 2次<br>
-10月6日 某某 1次<br>
-10月7日 某某 某某2 各1次
+10月5日 王梅 2次<br>
+10月6日 李鹏 1次<br>
+10月7日 王梅 张伟 各1次
         </code>
         日期可以不写，会归到当前选中的日期。
       </div>
@@ -1815,9 +1815,8 @@ applyTheme(id) {
       const v = localStorage.getItem('wx.syncCode');
       if (v) return v;
     } catch (e) {}
-    /* ⚠️【测试站专用改动】测试站使用独立同步码，与生产数据完全隔离。
-       正式部署时请还原为生产同步码。 */
-    return 'wanxiu-test-only';
+    /* 固定常量 —— 不要改成随机，否则各设备互不相认 */
+    return 'wanxiu-main';
   },
 
   /** 拉云端数据；没有就返回 null */
@@ -1925,8 +1924,8 @@ applyTheme(id) {
      *
      * 要按「日期 → 班号 → 段」三层的**并集**来遍历。
      * 踩过的坑：一开始只遍历本机已有的键，结果"云端有、本机没有"的
-     * 那个班被整个丢掉了（比如云端把 3 班改成某宿管，本机 overrides 里
-     * 只有 1 班，合并后 3 班又变回模板里的某老师）。
+     * 那个班被整个丢掉了（比如云端把 3 班改成张占辉，本机 overrides 里
+     * 只有 1 班，合并后 3 班又变回模板里的张建锋）。
      */
     const ov = {};
     const rOv = R.overrides || {};
@@ -2804,7 +2803,7 @@ applyTheme(id) {
     // 底部：「转发给宿管」 + 「确认」
     // 转发放在这里，是因为宿管常常是「看到某班缺人」时直接被叫来的，
     // 不用先退回当天明细再找转发。
-    /* 从哪个格点的就转发那几格：某老师带 1+2 班时，转发出去也是 1+2 班，
+    /* 从哪个格点的就转发那几格：王文燕带 1+2 班时，转发出去也是 1+2 班，
        只发第一个班会让宿管漏掉后面的班。 */
     const shareCls = this._pickClsList || String(c);
     this.openSheet(`${c}班 · ${ds.slice(5)} 星期${WEEK_CN[isoDow(parseYmd(ds))-1]}`, h, `
@@ -3407,7 +3406,7 @@ applyTheme(id) {
     t += `<tr class="tf"><td class="n">合计</td>`;
     allCols.forEach(d=>{ t+=`<td>${s.rows.reduce((a,r)=>a+(r.duty[d]||0),0)}</td>`; });
     t += `<td>${s.totals.times}</td></tr></tbody></table>
-      <div class="sg"><div>制表人：________</div><div>审核：____________</div><div>年级组长：____________</div></div>
+      <div class="sg"><div>制表人：莫雅君</div><div>审核：____________</div><div>年级组长：____________</div></div>
       <script>window.onload=()=>window.print()<\/script></body></html>`;
     const w = window.open('', '_blank');
     if (!w) { this.toast('浏览器拦截了弹窗，请允许后重试'); return; }
@@ -3518,7 +3517,7 @@ applyTheme(id) {
     h += `<div class="set-g"><div class="set-i"><div class="k">行政人员名单</div>
       <div class="v">这些人在选择老师时会单独分组显示，方便快速找到。不会自动排晚修</div>
       <input value="${esc(DATA.adminStaff.join('、'))}" onchange="App.setAdmin(this.value)"
-        placeholder="用、或逗号分隔，如：张三、李四">
+        placeholder="用、或逗号分隔，如：王梅、李鹏">
       <div class="hint">行政人员也可以上晚修班，只需在表格里点对应格子就能安排</div>
     </div></div>`;
 
@@ -3526,7 +3525,7 @@ applyTheme(id) {
     h += `<div class="set-g"><div class="set-i"><div class="k">宿管名单</div>
       <div class="v">填了之后，选择老师时会单独分组显示、紫色标识，值班次数记给宿管</div>
       <input value="${esc(DATA.dormStaff.join('、'))}" onchange="App.setDorm(this.value)"
-        placeholder="用、或逗号分隔，如：宿管、张三"></div>
+        placeholder="用、或逗号分隔，如：宿管、王梅"></div>
     </div>`;
 
     // 学期设置

@@ -5,15 +5,15 @@
 (function () {
   'use strict';
 
-  /* ⚠️【测试站专用改动】已移除真实凭据与真实服务地址。
-     本测试站只验证「换域名后微信能否打开页面」，
-     故此处填占位值，且下方所有云端出口已强制短路 —— 不可能连到生产环境。
-     正式部署时请换回真实 publicConfig。 */
+  /* ⚠️【这次部署的改动：只切断云端，保留真实数据】
+     真实数据（教师名单/排班模板）**全部保留**，用于在微信里看真实效果。
+     但这里不连生产后端：凭据换成占位值，且下方所有出口强制短路。
+     这样测试站既能显示真实排班，又不可能读写生产数据。 */
   var CFG = {
-    resourceId:      'TEST_PLACEHOLDER',
-    endpoint:         'https://example.invalid',
-    oauthRelayBaseUrl:'https://example.invalid',
-    publishableKey:   'TEST_PLACEHOLDER'
+    resourceId:      'DISABLED_FOR_TEST',
+    endpoint:         'https://disabled.invalid',
+    oauthRelayBaseUrl:'https://disabled.invalid',
+    publishableKey:   'DISABLED_FOR_TEST'
   };
 
   var _cloud = null;
@@ -180,12 +180,6 @@
     return true;
   }
 
-  /* ⚠️【测试站专用改动】硬切断云端：所有方法直接 reject，
-     不发起任何网络请求，确保不可能碰到生产数据。 */
-  function blocked() {
-    return Promise.reject(new Error('测试站已禁用云同步（隔离生产数据）'));
-  }
-
   window.CloudDuty = {
     ready: ready,
     loadState: loadState,
@@ -197,13 +191,18 @@
     saveLink: saveLink,
     loadLink: loadLink,
     shortCode: shortCode,
-    /* 测试站：全部短路 */
     _disabled: true
   };
 
-  /* 覆盖掉上面所有会联网的出口 */
+  /* ⚠️【这次部署的改动】所有会联网的出口一律短路，不发起任何请求。
+     真实排班数据仍从 core.js 的本地模板渲染，页面看起来和正式站一样；
+     但「宿管登记 / 转发链接 / 云端同步」这些需要后端的操作会失败 ——
+     这是刻意的，避免测试站写到生产库里。 */
+  function disabled() {
+    return Promise.reject(new Error('测试站已禁用云同步'));
+  }
   ['loadState','saveState','submitShift','loadShift','listDates',
    'deleteShift','saveLink','loadLink'].forEach(function (k) {
-    window.CloudDuty[k] = blocked;
+    window.CloudDuty[k] = disabled;
   });
 })();
