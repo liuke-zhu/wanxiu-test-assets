@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="build" content="20261013b">
+<title>晚修代班登记</title>
+<style>
+  :root{
+    --bg:#fdfafb; --card:#fff; --line:#ece2e4; --line2:#f4edef;
+    --txt:#3f3438; --txt2:#6d5f63; --txt3:#9a8f93;
+    --blue:#c9a2ab; --blue-bg:#f8f0f2; --blue-dk:#a8838c;
+    --green:#9aae9c; --green-bg:#f1f5f1;
+    --amber:#b9a06a; --amber-bg:#fdf4e8;
+    --red:#c08b84; --red-bg:#fbf0ee;
+    --purple:#a99bb3; --purple-bg:#f6f1f8;
+    --rowh:#fbf7f8;
+    --r:14px;
+    --sh:0 1px 2px rgba(63,52,56,.04), 0 2px 8px rgba(63,52,56,.035);
+    --grid-line:rgba(201,162,171,.18);
+    --grid-size:14px;
+  }
+  body{
+    margin:0;position:relative;
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:var(--grid-size) var(--grid-size);
+    background-attachment:fixed;
+    color:var(--txt);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+    padding:0 0 calc(40px + env(safe-area-inset-bottom));
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{font-family:inherit;font-size:14px;border:0;background:none;cursor:pointer;color:inherit}
+
+  /* 顶部条 */
+  .hd{background:var(--blue);padding:calc(18px + env(safe-area-inset-top)) 18px 16px;color:#fff}
+  .hd h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px}
+  .hd p{margin:6px 0 0;font-size:13px;opacity:.92;line-height:1.6}
+  /* 周几：加粗放大，是宿管确认"哪天"的依据 */
+  .hd p .hd-wd{font-weight:700;font-size:14px}
+  /* 第几段：胶囊标签，和「几班」呼应 */
+  .hd p .hd-seg{display:inline-block;margin-left:7px;vertical-align:1px;
+    background:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.4);
+    border-radius:7px;padding:1px 8px;font-size:12px;font-weight:600}
+
+  .wrap{padding:14px 12px 0}
+  /* 不在微信里打开时的提示（微信里打开不显示这句话） */
+  .wx-tip{margin:0 0 12px;padding:10px 13px;background:var(--blue-bg);
+    border:1px solid var(--blue);border-radius:10px;font-size:12.5px;
+    line-height:1.65;color:var(--txt2)}
+  .wx-tip b{color:var(--blue-dk);font-weight:600}
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+  .card-h{padding:13px 14px 9px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .card-h .sub{font-size:12px;color:var(--txt3);font-weight:400;margin-left:auto}
+  .card-b{padding:0 14px 14px}
+
+  .pill{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+  .pill.s{background:var(--blue-bg);color:var(--blue-dk)}
+  .pill.d{background:var(--green-bg);color:var(--green)}
+  .pill.am{background:var(--amber-bg);color:var(--amber)}
+
+  /* 班级勾选列表 */
+  .cls{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line2);cursor:pointer}
+  .cls:last-child{border-bottom:0}
+  .cls:active{background:var(--rowh)}
+  .cls .box{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--line);
+    flex:0 0 22px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:13px;font-weight:700;transition:.12s}
+  .cls.on .box{background:var(--blue);border-color:var(--blue)}
+  .cls .nm{flex:1;font-size:14.5px;min-width:0}
+  .cls .tm{font-size:12px;color:var(--txt3);flex:0 0 auto}
+
+  /* 宿管选择 */
+  .dorm{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--line2);cursor:pointer}
+  .dorm:last-child{border-bottom:0}
+  .dorm:active{background:var(--rowh)}
+  .dorm .av{width:32px;height:32px;border-radius:50%;background:var(--purple-bg);
+    color:var(--purple);display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:600;flex:0 0 32px}
+  .dorm .nm{flex:1;font-size:14.5px}
+  .dorm .ck{color:var(--blue);font-size:17px;font-weight:700;flex:0 0 auto;opacity:0}
+  .dorm.on .ck{opacity:1}
+  .dorm.on{background:var(--blue-bg)}
+
+  /* 单班模式：不需要勾选，直接把这个班亮出来 */
+  .one-cls{padding:20px 14px;text-align:center}
+  .one-nm{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--blue-dk)}
+  .one-sub{font-size:12.5px;color:var(--txt3);margin-top:4px}
+
+  .btn{display:block;width:100%;padding:14px;border-radius:11px;font-size:15px;font-weight:600;
+    text-align:center;background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(47,58,66,.14)}
+  .btn:disabled{opacity:.45;box-shadow:none}
+  .btn:active:not(:disabled){transform:scale(.99)}
+  .btn-ghost{background:#fff;color:var(--txt2);border:1px solid var(--line);box-shadow:var(--sh)}
+
+  .tip{font-size:12px;color:var(--txt2);line-height:1.65;padding:0 14px 12px}
+  .empty{padding:30px 14px;text-align:center;color:var(--txt3);font-size:13.5px}
+
+  /* 结果页 */
+  .done{text-align:center;padding:34px 20px 26px}
+  .done .ic{width:56px;height:56px;border-radius:50%;background:var(--green-bg);
+    color:var(--green);font-size:30px;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 14px}
+  .done h2{margin:0 0 6px;font-size:18px}
+  .done p{margin:0;font-size:13.5px;color:var(--txt2);line-height:1.7}
+  .sum-box{background:var(--rowh);border-radius:10px;padding:13px;margin:16px 0 4px;text-align:left}
+  .sum-box .r{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0}
+  .sum-box .r b{font-weight:600}
+
+  .toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    background:rgba(26,26,46,.94);color:#fff;padding:11px 20px;border-radius:10px;font-size:13.5px;
+    z-index:200;opacity:0;pointer-events:none;transition:.22s;max-width:86vw;text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+  .err{margin:14px 12px;padding:14px;background:var(--red-bg);border-radius:12px;
+    color:var(--red);font-size:13.5px;line-height:1.7}
+  /* 加载骨架 */
+  .load{display:flex;flex-direction:column;align-items:center;gap:14px;
+    padding:70px 24px;color:var(--txt3);font-size:13.5px}
+  .spin{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line);
+    border-top-color:var(--blue);animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script src="js/cloud-sdk.js?v=20261013b"></script>
+<script src="js/xlsx.full.min.js?v=20261013b"></script>
+<script src="js/cloud.v20261013b.js"></script>
+<script src="js/dorm.v20261013b.js"></script>
+<script>
+/* 宿管页也要能自动更新：微信里缓存很顽固，
+   绕过缓存抓一份 dorm.html，比对 meta build，版本不同就带参数重载。 */
+(function () {
+  var cur = (document.querySelector('meta[name=build]') || {}).content || '';
+  if (!cur) return;
+  try { if (sessionStorage.getItem('wx.dormVer') === cur) return;
+        sessionStorage.setItem('wx.dormVer', cur); } catch (e) {}
+  fetch(location.pathname + '?cv=' + Date.now(), { cache: 'no-store', credentials: 'omit' })
+    .then(function (r) { return r && r.ok ? r.text() : ''; })
+    .then(function (html) {
+      var m = html.match(/name=["']build["']\s+content=["']([^"']+)["']/i);
+      if (m && m[1] && m[1] !== cur) {
+        /* search 一定非空（?k=xxx），但仍做一次判断，别拼出 dorm.html&r=1 */
+        var sep = location.search ? '&' : '?';
+        location.replace(location.pathname + location.search + sep + 'r=' + Date.now());
+      }
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>

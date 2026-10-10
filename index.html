@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="build" content="20261013b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23c9a2ab%22/%3E%3Ctext x=%2232%22 y=%2242%22 font-size=%2230%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22sans-serif%22%3E晚%3C/text%3E%3C/svg%3E">
+<title>晚修值班次数统计</title>
+<style>
+  /* ============ 主题系统 ============ */
+  /* 默认：莫兰迪蓝 + 方格纸 */
+  /* 默认：莫兰迪粉 + 方格纸 */
+  :root{
+    --bg:#fdfafb; --card:#fff; --line:#ece2e4; --line2:#f4edef;
+    --txt:#3f3438; --txt2:#6d5f63; --txt3:#9a8f93;
+    --blue:#c9a2ab; --blue-bg:#f8f0f2; --blue-dk:#a8838c;
+    --green:#9aae9c; --green-bg:#f1f5f1;
+    --amber:#b9a06a; --amber-bg:#fdf4e8;
+    --red:#c08b84; --red-bg:#fbf0ee;
+    --purple:#a99bb3; --purple-bg:#f6f1f8;
+    --rowh:#fbf7f8;
+    /* 「今天」专用：莫兰迪绿灰。和满屏粉底形成冷暖对比，够显眼又不刺眼 */
+    --today:#7d9b8e; --today-bg:#eaf2ee; --today-dk:#5f7d71;
+    --r:14px;
+    --sh:0 1px 2px rgba(63,52,56,.04), 0 2px 8px rgba(63,52,56,.035);
+    --grid-line:rgba(201,162,171,.18);
+    --grid-size:14px;
+    --sw:1px; --rh:46px;         /* 方格线宽 / 表格行高 */
+  }
+
+  /* 莫兰迪蓝（旧版，保留可切换） */
+  [data-theme="morandi"]{
+    --bg:#f7f9fa; --card:#fff; --line:#e3e7ea; --line2:#eef1f4;
+    --txt:#2f3a42; --txt2:#6b7680; --txt3:#96a0a8;
+    --blue:#7e96ab; --blue-bg:#eef2f5; --blue-dk:#5c7488;
+    --green:#8ca88e; --green-bg:#eff4ef;
+    --today:#6f9488; --today-bg:#e6efeb; --today-dk:#557a6e;
+    --amber:#c9a878; --amber-bg:#faf1e4;
+    --red:#b8837d; --red-bg:#f9efee;
+    --purple:#a89cb8; --purple-bg:#f0eef5;
+    --rowh:#f4f6f8;
+    --r:14px;
+    --sh:0 1px 2px rgba(47,58,66,.04), 0 2px 8px rgba(47,58,66,.035);
+    --grid-line:rgba(126,150,171,.17); --grid-size:14px; --sw:1px; --rh:46px;
+  }
+
+  /* 靛蓝（经典） */
+  [data-theme="indigo"]{
+    --bg:#f5f6f8; --card:#fff; --line:#e5e7eb; --line2:#f0f1f3;
+    --txt:#1a1a2e; --txt2:#6b7280; --txt3:#9ca3af;
+    --blue:#2563eb; --blue-bg:#eff6ff; --blue-dk:#1e40af;
+    --green:#059669; --green-bg:#ecfdf5;
+    --amber:#d97706; --amber-bg:#fffbeb;
+    --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff;
+    --rowh:#fafbfc;
+    --r:12px;
+    --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+    --grid-line:rgba(37,99,235,.13); --grid-size:14px; --sw:1px; --rh:46px;
+  }
+  /* 蜂窝紫（化学感） */
+  [data-theme="hex"]{
+    --bg:#fbfafd; --card:#fff; --line:#e4e0ec; --line2:#f0edf5;
+    --txt:#2d2840; --txt2:#6f6a82; --txt3:#9d99ab;
+    --blue:#5b4b8a; --blue-bg:#f0edf7; --blue-dk:#463a70;
+    --green:#7d9c8a; --green-bg:#eff5f1;
+    --amber:#c2a06f; --amber-bg:#faf3e7;
+    --red:#b87f88; --red-bg:#f9eff0;
+    --purple:#8b7bab; --purple-bg:#f3f0f9;
+    --rowh:#faf9fc;
+    --r:14px;
+    --sh:0 1px 2px rgba(45,40,64,.04), 0 2px 8px rgba(45,40,64,.035);
+    --grid-line:rgba(91,75,138,.13); --grid-size:14px; --sw:1px; --rh:48px;
+  }
+  /* 松石绿 */
+  [data-theme="jade"]{
+    --bg:#f7faf8; --card:#fff; --line:#e0eae6; --line2:#eef4f1;
+    --txt:#26332e; --txt2:#667570; --txt3:#96a39e;
+    --blue:#4a7c6f; --blue-bg:#edf3f1; --blue-dk:#35594f;
+    --green:#6f9a7e; --green-bg:#eef5f0;
+    --amber:#b8935c; --amber-bg:#f9f2e6;
+    --red:#b07f76; --red-bg:#f8efed;
+    --purple:#8a7f9e; --purple-bg:#f1eef5;
+    --rowh:#f7faf9;
+    --r:14px;
+    --sh:0 1px 2px rgba(38,51,46,.04), 0 2px 8px rgba(38,51,46,.035);
+    --grid-line:rgba(74,124,111,.13); --grid-size:14px; --sw:1px; --rh:46px;
+  }
+  /* 暖阳米 */
+  [data-theme="amber"]{
+    --bg:#fbf8f3; --card:#fff; --line:#eae0d2; --line2:#f4efe7;
+    --txt:#3b2f26; --txt2:#7a6c5d; --txt3:#a89a89;
+    --blue:#b06c3f; --blue-bg:#f9f1e9; --blue-dk:#8a5030;
+    --green:#8a9a6a; --green-bg:#f2f5ec;
+    --amber:#c99a4e; --amber-bg:#fbf1de;
+    --red:#bb7d74; --red-bg:#f9efed;
+    --purple:#8d7a9c; --purple-bg:#f3eff5;
+    --rowh:#fdfaf6;
+    --r:14px;
+    --sh:0 1px 2px rgba(59,47,38,.04), 0 2px 8px rgba(59,47,38,.035);
+    --grid-line:rgba(176,108,63,.12); --grid-size:14px; --sw:1px; --rh:46px;
+  }
+  /* 墨玉灰（无纹理，纯色护眼） */
+  [data-theme="slate"]{
+    --bg:#f4f5f7; --card:#fff; --line:#e2e5ea; --line2:#eef0f3;
+    --txt:#1f2933; --txt2:#68727c; --txt3:#98a2ac;
+    --blue:#334155; --blue-bg:#eef1f4; --blue-dk:#1e293b;
+    --green:#5f7a6f; --green-bg:#eef3f0;
+    --amber:#9a8256; --amber-bg:#f8f3e9;
+    --red:#a8706a; --red-bg:#f8efee;
+    --purple:#6f6a86; --purple-bg:#f0eff4;
+    --rowh:#f8f9fb;
+    --r:14px;
+    --sh:0 1px 2px rgba(31,41,51,.04), 0 2px 8px rgba(31,41,51,.035);
+    --grid-line:transparent; --grid-size:14px; --sw:0px; --rh:46px;
+  }
+
+  /* 方格纸背景（跟随主题换线条色） */
+  body{
+    margin:0;
+    position:relative;
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(var(--grid-line) var(--sw), transparent var(--sw)),
+      linear-gradient(90deg, var(--grid-line) var(--sw), transparent var(--sw));
+    background-size:var(--grid-size) var(--grid-size);
+    background-attachment:fixed;
+    color:var(--txt);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+    padding-bottom:calc(86px + env(safe-area-inset-bottom));
+  }
+  /* 无背景主题时去掉网格 */
+  [data-theme="slate"] body,
+  body.nogrid{background-image:none}
+
+  button{font-family:inherit;font-size:14px;border:0;background:none;cursor:pointer;color:inherit}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{font-family:inherit;font-size:14px;border:0;background:none;cursor:pointer;color:inherit}
+
+  /* ---------- 右上角工具（固定） ---------- */
+  /* 固定在右上角，与栏目栏按钮垂直居中对齐
+     栏目栏高度 = padding-top(10) + 按钮(30) + padding-bottom(10) = 50px
+     topbar 的 padding-top = 10 + (50-30)/2 = 20px */
+  .topbar{position:fixed;top:0;right:0;z-index:70;
+    padding:calc(20px + env(safe-area-inset-top)) 12px 0 0;
+    pointer-events:none;
+    background:linear-gradient(90deg, transparent 0, var(--blue) 22px)}
+  .topbar .hd-right{pointer-events:auto;margin-left:0;display:flex;
+    align-items:center;gap:7px}
+
+  .tabs{display:flex;background:#fff;border-bottom:1px solid var(--line)}
+  .tabs button{flex:1;padding:11px 0;font-size:14.5px;color:var(--txt2);position:relative;transition:.15s}
+  .tabs button.on{color:var(--blue);font-weight:600}
+  .tabs button.on::after{content:'';position:absolute;left:22%;right:22%;bottom:0;height:2.5px;
+    background:var(--blue);border-radius:2px}
+  .tabs .badge{display:inline-block;background:var(--red);color:#fff;font-size:10px;
+    padding:0 5px;border-radius:8px;margin-left:4px;vertical-align:2px;font-weight:400}
+
+  .pg{padding:12px;display:none;min-height:60vh}
+  .pg.on{display:block}
+
+  .card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+  .card-h{padding:13px 14px 9px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .card-h .sub{font-size:12px;color:var(--txt3);font-weight:400;margin-left:auto}
+  .card-b{padding:0 14px 14px}
+
+  /* 月份切换 */
+  /* 月份 + 今天 = 同一张卡片（原来是两个独立块，合并后更紧凑） */
+  .mcard{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+    margin:0 12px 10px;padding:9px 10px}
+  .mbar{display:flex;align-items:center;justify-content:center;gap:12px}
+  .mbar button{width:32px;height:32px;flex:0 0 32px;border-radius:9px;
+    background:var(--rowh);font-size:17px;color:var(--txt2);
+    border:1px solid var(--line);transition:background .15s}
+  .mbar button:active{background:var(--blue-bg)}
+  /* 周次标签：是个可点的 button，要去掉浏览器默认样式。
+     ⚠️ flex 必须写 auto —— 上面 `.mbar button{flex:0 0 32px}` 是给箭头用的，
+     会把周次按钮也压成 32px 宽（内容被挤没、箭头看起来"空框"）。 */
+  .mbar button.m{background:transparent;border:none;padding:0 2px;
+    display:flex;flex:0 0 auto;flex-direction:column;align-items:center;
+    line-height:1.15;color:var(--txt);cursor:pointer;align-self:center;
+    /* ⚠️ 必须 min-width:max-content —— 只写 flex:0 0 auto 不够：
+       flex 容器空间不够时仍会 shrink，把「第6周」压成一个字的宽度。
+       max-content 意思是"按内容应有的宽度，不许压缩"。 */
+    min-width:max-content}
+  .mbar button.m b{font-size:16px;font-weight:600;letter-spacing:-.2px;
+    white-space:nowrap}
+  .mbar button.m em{font-style:normal;font-size:10.5px;font-weight:400;
+    color:var(--txt3);font-variant-numeric:tabular-nums;
+    letter-spacing:-.3px;white-space:nowrap}
+  .mbar button.m:active{opacity:.6}
+
+  /* 周次选择列表 */
+  .wk-pick{display:flex;flex-direction:column;gap:5px;padding:2px 0;
+    max-height:min(62vh,460px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .wk-i{display:flex;align-items:center;gap:9px;padding:10px 13px;
+    background:var(--rowh);border:1.5px solid var(--line);border-radius:10px;
+    cursor:pointer;text-align:left;width:100%;transition:background .12s}
+  .wk-i:active{background:var(--blue-bg)}
+  .wk-i b{font-size:14px;font-weight:600;color:var(--txt);flex:0 0 62px}
+  .wk-i span{font-size:12px;color:var(--txt2);flex:1;
+    font-variant-numeric:tabular-nums}
+  .wk-i i{font-style:normal;font-size:10.5px;font-weight:400;color:#fff;
+    background:var(--today);border-radius:5px;padding:1px 6px;flex:0 0 auto}
+  .wk-i.on{background:var(--blue-bg);border-color:var(--blue)}
+  .wk-i.on b{color:var(--blue-dk)}
+  .wk-tip{padding:9px 2px 0;font-size:11.5px;color:var(--txt3);text-align:center}
+  /* 窄屏（手机上）整体字号收一档，保证「月份 + 今天」挤在一行 */
+  @media (max-width:430px){
+    .mcard{padding:8px 8px}
+    .mbar{gap:7px}
+    .mbar .m{font-size:14px}
+    .mbar button.m b{font-size:14px}
+    .mbar button.m em{font-size:9.5px}
+    .mbar button{width:27px;height:27px;flex-basis:27px;font-size:14px}
+  }
+  /* 更窄（小屏手机 / 微信内置浏览器）再收一档，
+     实测 360px 上一档会把「星期五」挤出卡片 */
+  @media (max-width:370px){
+    .mbar{gap:5px}
+    .mbar .m{font-size:13px}
+    .mbar button.m b{font-size:13px}
+    .mbar button.m em{font-size:9px}
+    .mbar button{width:24px;height:24px;flex-basis:24px;font-size:13px}
+  }
+
+  /* 表格里「今天」那一行 —— 用独立的绿灰色系，一眼从粉底里跳出来 */
+  .gx-row.today .gx-rowh,.gx-row.today .gx-cell{
+    background:var(--today-bg)!important}
+  /* 行首左侧一道竖条，横向也标出"就是今天" */
+  .gx-row.today .gx-rowh{box-shadow:inset 3px 0 0 var(--today)}
+  .gx-row.today .gx-cell{
+    box-shadow:inset 1.5px 0 0 rgba(125,155,142,.22)}
+  .gx-row.today .gx-cell:last-child{box-shadow:none}
+  .gx-row.today .gx-st{background:var(--today);color:#fff;border-color:var(--today)}
+  .gx-row.today .gx-st.hol{background:var(--txt3);border-color:var(--txt3)}
+  .gx-row.today .gx-nm{color:var(--today-dk);font-weight:600}
+  .gx-row.today .rh-wd.rh-today{background:var(--today);color:#fff;
+    border-color:var(--today);border-radius:6px;padding:1px 6px;letter-spacing:.5px}
+  .gx-row.today .rh-dt,.gx-row.today .rh-wd2{color:var(--today-dk)}
+  .gx-row.today .rh-more{color:var(--today-dk)}
+  .gx-row.today .rh-wd2{display:block;font-style:normal;font-size:9.5px;
+    color:var(--today-dk);font-weight:400;line-height:1.1;margin-top:1px}
+  .gx-row:not(.today) .rh-wd2{display:none}
+  /* 双周组本身是淡绿底，今天行改用更冷的深青绿，避免和组底色撞在一起 */
+  .g-d .gx-row.today .gx-rowh,.g-d .gx-row.today .gx-cell{
+    background:#ddebe7!important}
+  .g-d .gx-row.today .gx-cell{box-shadow:inset 1.5px 0 0 rgba(85,122,110,.28)}
+
+  /* 原来这里是「今天 10月9日 星期五」那块的样式（.todaybar / .tb-*），
+     已按要求整块删除。表格里今天那行的高亮样式（.gx-row.today）不受影响。 */
+
+  /* 日历 */
+  .cal{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:10px 10px 12px;margin-bottom:12px}
+  .cal-w{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+  .cal-w div{text-align:center;font-size:11.5px;color:var(--txt3);padding:4px 0}
+  .cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .day{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1px;font-size:13.5px;position:relative;
+    color:var(--txt);background:transparent;border:1.5px solid transparent}
+  .day.out{color:var(--line)}
+  .day.hol{color:var(--txt3);background:var(--line2)}
+  .day.wk{background:var(--rowh);color:var(--txt3)}
+  .day .dots{display:flex;gap:2px;height:4px;align-items:center}
+  .day .dots i{width:4px;height:4px;border-radius:50%;display:block}
+  .day.ed{background:var(--amber-bg);border-color:var(--amber);font-weight:600}
+  .day.ed .dots i{background:var(--amber)}
+  .day.today{box-shadow:inset 0 0 0 1.5px var(--blue)}
+  .day.sel{background:var(--blue);color:#fff;font-weight:600}
+  .day.sel .dots i{background:#fff}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 12px;background:#fff;
+    border-radius:var(--r);box-shadow:var(--sh);font-size:11.5px;color:var(--txt2);margin-bottom:12px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend i{width:9px;height:9px;border-radius:3px;display:block}
+
+  /* 值班明细 */
+  .d-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line2)}
+  .d-date{font-size:19px;font-weight:700;letter-spacing:-.3px}
+  .d-w{font-size:13px;color:var(--txt2)}
+  .pill{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+  .pill.s{background:var(--blue-bg);color:var(--blue)}
+  .pill.d{background:var(--green-bg);color:var(--green)}
+  .pill.am{background:var(--amber-bg);color:var(--amber)}
+  .pill.rd{background:var(--red-bg);color:var(--red)}
+
+  .cls{display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--line2)}
+  .cls:last-child{border-bottom:0}
+  .cls-no{width:30px;flex:0 0 30px;font-size:12.5px;color:var(--txt3);font-weight:500}
+  .cls-t{flex:1;font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cls-t.empty{color:var(--txt3);opacity:.65}
+  .cls-t .sug{font-size:11px;color:var(--txt3);background:#f3f4f6;padding:1px 6px;
+    border-radius:5px;margin-left:6px}
+  .cls-t.dorm .nm{color:var(--purple);font-weight:600}
+  .cls-t .cl{display:inline-flex;align-items:baseline;gap:3px;margin-right:9px}
+  .cls-t .cl:last-child{margin-right:0}
+  .cls-t .cl.nm{color:var(--purple);font-weight:600}
+  .cls-t .cl .gx-n{margin-left:1px}
+  /* 放假标记按钮（当天明细头部） */
+  .d-holbtn{flex:0 0 auto;margin-left:auto;padding:5px 11px;border-radius:8px;
+    background:var(--rowh);color:var(--txt2);font-size:12px;font-weight:500;
+    font-family:inherit;border:1px solid var(--line);transition:background .15s}
+  .d-holbtn:active{background:var(--line2)}
+  .chg{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--amber-bg);color:var(--amber);font-weight:500}
+  .cls-chg{background:#fff;padding:10px 14px;border-bottom:1px solid var(--line2);
+    font-size:11.5px;color:var(--amber);display:flex;align-items:center;gap:6px}
+  .cls-chg button{margin-left:auto;color:var(--amber);text-decoration:underline;font-size:11.5px}
+
+  /* 额外登记 */
+  .ex{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line2)}
+  .ex:last-of-type{border-bottom:0}
+  .ex-tag{font-size:11px;padding:2px 7px;border-radius:5px;color:#fff;font-weight:500;flex:0 0 auto}
+  .ex-nm{font-size:14px;flex:1}
+  .ex-nt{font-size:11.5px;color:var(--txt3)}
+  .ex-amt{font-size:13px;font-weight:600;color:var(--txt2);font-variant-numeric:tabular-nums}
+  .ex-add{width:100%;padding:11px;color:var(--blue);font-size:13.5px;font-weight:500;
+    border-top:1px dashed var(--line);margin-top:2px}
+
+  .btn-row{display:flex;gap:8px;padding:0 14px 14px}
+  .btn{flex:1;padding:11px;border-radius:9px;font-size:13.5px;font-weight:500;text-align:center}
+  .btn-p{background:var(--blue);color:#fff}
+  .btn-s{background:#f3f4f6;color:var(--txt)}
+  .btn-d{background:var(--red-bg);color:var(--red)}
+  /* 转发给宿管：主色描边，和「复制/看费用」区分开 */
+  .btn-share{display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--card);color:var(--blue-dk);font-weight:600;
+    border:1.5px solid var(--blue);box-shadow:0 1px 3px rgba(47,58,66,.06)}
+  .btn-share svg{width:16px;height:16px;display:block;flex:0 0 16px}
+  /* 发到微信：主色实底，和「转发/复制」区分开（不用微信绿，跟主题统一） */
+  .btn-wx{display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--blue);color:#fff;font-weight:600;
+    box-shadow:0 2px 8px rgba(47,58,66,.16)}
+  .btn-wx svg{width:17px;height:17px;display:block;flex:0 0 17px}
+  /* 转发弹层里的链接框 */
+  .lk-box{background:var(--rowh);border-radius:10px;padding:10px 11px}
+  .lk-lab{font-size:11.5px;color:var(--txt3);margin-bottom:6px}
+  /* 链接生成失败 / 重试中 */
+  .lk-err{font-size:12.5px;color:var(--red);line-height:1.6;padding:2px 0 8px}
+  .lk-wait{font-size:12.5px;color:var(--txt2);padding:6px 0}
+  .lk-retry{padding:8px 0;width:100%;border-radius:8px;font-size:13px;font-weight:600;
+    background:var(--card);color:var(--blue-dk);border:1.5px solid var(--blue);
+    font-family:inherit;transition:background .15s}
+  .lk-retry:active{background:var(--blue-bg)}
+  /* 宿管登记回执 */
+  .rx{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line2)}
+  .rx:last-child{border-bottom:0}
+  .rx .who{flex:0 0 auto;font-size:13.5px;font-weight:600;color:var(--purple);
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .rx .who .ok{font-size:10.5px;font-weight:400;color:var(--txt3);
+    background:var(--rowh);border:1px solid var(--line);border-radius:5px;
+    padding:1px 5px;white-space:nowrap}
+  .rx .who .wait{font-size:10.5px;font-weight:400;color:var(--amber);
+    background:var(--amber-bg);border:1px solid var(--amber);border-radius:5px;
+    padding:1px 5px;white-space:nowrap}
+  .rx.done{background:var(--rowh)}
+  .rx .what{flex:1;font-size:13px;color:var(--txt2);min-width:0}
+  .rx .tm{font-size:11.5px;color:var(--txt3);flex:0 0 auto}
+  .rx-act{display:flex;gap:7px;padding:10px 14px}
+  .rx-act button{flex:1;padding:8px 0;border-radius:8px;font-size:12.5px;
+    background:var(--rowh);color:var(--txt2);border:1px solid var(--line)}
+  .rx-act button:disabled{opacity:.55}
+  /* 选人弹层里的分段列表：每段一行（分段名 + 时间 + 当前老师 + 箭头） */
+  .segrow{display:flex;align-items:center;gap:10px;width:100%;
+    padding:12px 14px;border-bottom:1px solid var(--line2);
+    background:var(--card);cursor:pointer;text-align:left;
+    transition:background .12s}
+  .segrow:last-child{border-bottom:0}
+  .segrow:active{background:var(--blue-bg)}
+  /* 分段名和时间并排，一行显示 —— 之前没有 CSS，b/em 都是 block 各自占一行 */
+  .seg-lbl{flex:0 0 auto;display:flex;align-items:baseline;gap:6px;
+    min-width:118px}
+  .seg-lbl b{font-size:14px;font-weight:600;color:var(--txt);white-space:nowrap}
+  .seg-lbl em{font-style:normal;font-size:12px;font-weight:400;
+    color:var(--txt3);font-variant-numeric:tabular-nums;
+    letter-spacing:-.3px;white-space:nowrap}
+  .seg-cur{flex:1;font-size:14px;color:var(--txt);font-weight:600;
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seg-cur .none{color:var(--txt3);font-weight:400}
+  .seg-arrow{flex:0 0 auto;font-size:17px;color:var(--txt3);line-height:1}
+
+  .btn:active{opacity:.75}
+
+  /* ---------- 名单制录入弹层：顶部信息区 + 段别选择 ---------- */
+  .pane-hd{display:flex;align-items:baseline;gap:9px;padding:13px 16px 11px}
+  .ph-lbl{font-size:16px;font-weight:600;color:var(--txt)}
+  .ph-time{font-size:11.5px;color:var(--txt3);margin-left:auto}
+
+  .datepick{display:flex;align-items:center;gap:9px;padding:0 16px 12px;
+    flex-wrap:wrap}
+  .datepick label{font-size:13px;color:var(--txt2);flex:0 0 auto}
+  .datepick input[type=date]{font:inherit;font-size:14px;color:var(--txt);
+    padding:7px 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--rowh);min-height:34px}
+  .dp-w{font-size:12.5px;color:var(--txt2)}
+  .dp-w .warn{color:var(--amber);margin-left:4px}
+
+  /* 段别选择：做成实心分段按钮，选中态一眼可见 */
+  .segpick2{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap}
+  .segpick2 button{flex:1 1 0;min-width:66px;padding:10px 6px;
+    font:inherit;font-size:14px;line-height:1.2;color:var(--txt2);
+    background:var(--rowh);border:1px solid var(--line);
+    border-radius:10px;cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:center;gap:5px}
+  .segpick2 button:active{transform:scale(.97)}
+  .segpick2 button.on{background:var(--blue);border-color:var(--blue);
+    color:#fff;font-weight:600;box-shadow:0 2px 7px rgba(90,110,150,.22)}
+  /* 选中的那段前面加一个小圆点，闭着眼也知道选了哪个 */
+  .segpick2 button.on::before{content:'';width:5px;height:5px;border-radius:50%;
+    background:#fff;opacity:.9;flex:0 0 5px}
+
+  .ro-tip{margin:0 16px 12px;padding:10px 12px;background:var(--amber-bg);
+    border-radius:10px;font-size:12.5px;line-height:1.65;color:var(--txt2)}
+
+  /* ---------- 名单制栏目页顶部（紧凑，一两行说完） ---------- */
+  .ro-head{padding:13px 16px 11px;border-bottom:1px solid var(--line2)}
+  .ro-title{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .ro-icon{font-size:15px;flex:0 0 auto}
+  .ro-name{font-size:16px;font-weight:600;color:var(--txt);flex:0 0 auto}
+  /* 「N次 · N人」跟在栏目名后面同一行，不再另起两行 */
+  .ro-sum{margin-left:auto;font-size:13px;color:var(--txt2);flex:0 0 auto;
+    white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ro-sum b{font-size:15px;font-weight:600;color:var(--txt);
+    margin:0 1px;font-variant-numeric:tabular-nums}
+  .ro-desc{font-size:12.5px;color:var(--txt2);margin-top:3px;line-height:1.5}
+  .ro-segbar{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+  .ro-segbar span{font-size:11px;color:var(--txt3);background:var(--rowh);
+    border:1px solid var(--line2);border-radius:6px;padding:2px 7px;line-height:1.5}
+
+  /* 本月记录：一条一行，紧凑 */
+  .ro-empty{padding:26px 16px;text-align:center;font-size:12.5px;color:var(--txt3)}
+  .ro-item{display:flex;align-items:center;gap:10px;padding:11px 14px;
+    border-bottom:1px solid var(--line2)}
+  .ro-item:last-child{border-bottom:0}
+  .ro-item:active{background:var(--rowh)}
+  .ro-day{flex:0 0 88px;font-size:12px;color:var(--txt2);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ro-day b{font-size:13.5px;font-weight:600;color:var(--txt);margin-right:3px}
+  .ro-who{flex:1;min-width:0;font-size:14px;color:var(--txt);
+    display:flex;align-items:center;gap:6px}
+  .ro-who em{font-style:normal;font-size:11.5px;color:var(--txt3)}
+  .ro-seg{font-style:normal;font-size:10px;color:var(--txt3);background:var(--rowh);
+    border:1px solid var(--line2);border-radius:5px;padding:1px 5px;flex:0 0 auto}
+  .ro-times{flex:0 0 auto;font-size:13px;color:var(--txt2);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* 记录行尾的删除 ✕ —— 与表格里那个同款：平时淡灰，hover 才变红 */
+  .ro-x{flex:0 0 auto;width:20px;height:20px;margin-left:2px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;line-height:1;color:var(--txt3);cursor:pointer;
+    border-radius:50%;transition:.15s;user-select:none}
+  .ro-x:hover{background:var(--red-bg);color:var(--red)}
+  .ro-x:active{transform:scale(.88)}
+  /* 「手动添加」按钮 —— 空状态时就是它一个 */
+  .ro-add{display:block;width:calc(100% - 28px);margin:14px;padding:12px;
+    font:inherit;font-size:14.5px;font-weight:600;color:var(--blue-dk);
+    background:var(--card);border:1px dashed var(--line);border-radius:11px;
+    cursor:pointer;transition:.15s}
+  .ro-add:active{background:var(--blue-bg);transform:scale(.99)}
+
+  /* 统计 */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font-size:11.5px;color:var(--txt2);font-weight:500;text-align:left;
+    padding:9px 8px;border-bottom:1px solid var(--line);background:var(--rowh);white-space:nowrap}
+  td{padding:10px 8px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  td.n{font-weight:600;white-space:nowrap}
+  td.z{color:var(--txt3)}
+  tfoot td{background:var(--rowh);font-weight:700;border-top:1.5px solid var(--line)}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  .anom{background:var(--amber-bg);border-radius:var(--r);padding:11px 13px;margin-bottom:12px;
+    border-left:3px solid var(--amber)}
+  .anom h4{font-size:13px;margin:0 0 7px;color:var(--amber);font-weight:600}
+  .anom li{font-size:12.5px;color:var(--amber);line-height:1.7;list-style:none}
+
+  /* 设置 */
+  .set-g{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+  .set-i{padding:13px 14px;border-bottom:1px solid var(--line2)}
+  .set-i:last-child{border-bottom:0}
+  .set-i .k{font-size:13.5px;font-weight:500;margin-bottom:2px}
+  .set-i .v{font-size:12px;color:var(--txt3);line-height:1.6}
+  .set-i input,.set-i select{width:100%;padding:9px 11px;border:1px solid var(--line);
+    border-radius:8px;font-size:14px;margin-top:7px;font-family:inherit;background:#fff}
+  .set-i .rate-row{display:flex;gap:8px;margin-top:7px;align-items:center}
+  .set-i .rate-row label{font-size:12px;color:var(--txt2);width:56px;flex:0 0 56px}
+  .set-i .rate-row input{margin-top:0;flex:1;min-width:0}
+  .set-i .rate-row .u{font-size:11px;color:var(--txt3);flex:0 0 auto}
+
+  /* 弹层 */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:100;
+    display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;
+    /* dvh 会跟着键盘收起而变矮，正好用来躲开被键盘盖住的下半屏。
+       兜底仍写 82vh，老浏览器不支持 dvh 时用这个。 */
+    max-height:82vh;max-height:82dvh;
+    display:flex;flex-direction:column;
+    animation:up .24s cubic-bezier(.3,1,.4,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+/* 键盘弹起时给 sheet 加这个类：贴着键盘上沿，且盖住被遮住的区域 */
+.sheet.kb{animation:none;transition:none}
+/* 键盘态下把头部收紧，给下面的姓名列表多腾一点空间 */
+.sheet.kb .pane-hd{padding:9px 16px 7px}
+.sheet.kb .pane-hd .ph-lbl{font-size:15px}
+.sheet.kb .datepick{padding:0 16px 9px}
+.sheet.kb .segpick2{padding:0 16px 10px}
+.sheet.kb .search{padding:8px 16px 9px}
+.sh-h{padding:15px 16px 11px;border-bottom:1px solid var(--line2);
+    display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.sh-h h3{font-size:16px;margin:0;flex:1;font-weight:600}
+.sh-x{width:28px;height:28px;border-radius:50%;background:#f3f4f6;color:var(--txt2);
+    font-size:15px;display:flex;align-items:center;justify-content:center;flex:0 0 28px}
+.sh-b{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;flex:1;
+    overscroll-behavior:contain}
+.sh-f{padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line2);
+    display:flex;gap:8px;flex:0 0 auto}
+.sh-f .btn{padding:12px}
+
+  .search{padding:9px 16px 11px}
+  .search input{width:100%;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-size:15px}
+  /* 选人列表：只留姓名（圆形头像已按要求去掉） */
+  .opt{display:flex;align-items:center;gap:10px;padding:13px 16px;
+    border-bottom:1px solid var(--line2)}
+  .opt:active{background:var(--rowh)}
+  .opt .nm{flex:1;font-size:15px}
+  /* 宿管：名字标紫色，替代原来的紫色头像 */
+  .opt.dorm .nm{color:var(--purple);font-weight:600}
+  .opt .nm em{font-style:normal;font-size:11.5px;color:var(--txt3);margin-left:7px}
+  .opt .ck{color:var(--blue);font-size:17px;font-weight:700}
+  .opt.sel{background:var(--blue-bg)}
+  /* 兜底：选人列表里的 .av 一律不生成盒子（它没有样式定义，
+     当成普通块级元素会独占一行，把右边的真姓名挤成一道"影子"，
+     看起来就像名字被划掉又重复了一遍）。宿管登记页 dorm.html 里
+     .dorm .av 是有定义的（32px 圆形），不受这条影响。 */
+  .opt .av{display:none !important}
+  .sec-t{font-size:11.5px;color:var(--txt3);padding:11px 16px 5px;background:var(--rowh);font-weight:500}
+
+  .dup{background:var(--red-bg);color:var(--red);font-size:12px;padding:8px 16px;
+    display:flex;align-items:center;gap:6px}
+  .toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    background:rgba(26,26,46,.94);color:#fff;padding:11px 20px;border-radius:10px;font-size:13.5px;
+    z-index:200;opacity:0;pointer-events:none;transition:.22s;max-width:86vw;text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+  /* 岗位单价卡 */
+  .duty-row{padding:12px 14px;border-top:1px solid var(--line2)}
+  .duty-h{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .duty-tag{font-size:11px;padding:2px 8px;border-radius:5px;color:#fff;font-weight:500}
+  .duty-desc{font-size:11.5px;color:var(--txt3);flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .duty-unit{font-size:12.5px;color:var(--blue);font-weight:600;flex:0 0 auto}
+  .rate-row{display:flex;align-items:center;gap:7px}
+  .rate-row label{font-size:12px;color:var(--txt2);width:28px;flex:0 0 28px}
+  .rate-row input{width:100%;min-width:0;padding:7px 9px;border:1px solid var(--line);
+    border-radius:7px;font-size:14px;font-family:inherit}
+  .rate-row input:focus{outline:none;border-color:var(--blue)}
+  .rate-row .u{font-size:11px;color:var(--txt3);flex:0 0 auto}
+  /* 全名模式：格子更宽，允许横向滑动 */
+  .gx-full .gx-cell span{font-size:11.5px;letter-spacing:-.3px}
+
+  /* ---------- 矩阵表格（行=星期，列=班级） ---------- */
+  .gx-src{font-size:12px;color:var(--txt2);flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gx-tip{font-size:11.5px;color:var(--txt3);flex:0 0 auto}
+
+  /* ================= 排班表（仿原表的紧凑排版） ================= */
+  .gx-group{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+    margin:0 12px 14px;overflow:hidden}
+
+  /* 分组标题（gx-gtitle）已按要求去掉，相关样式一并清理 */
+
+  .gx-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  table.gx{border-collapse:separate;border-spacing:0;width:100%;
+    table-layout:fixed;min-width:763px}
+  col.gx-c-corner{width:58px}
+  col.gx-c-cls{width:47px}
+
+  /* 表头：班级行 */
+  table.gx th{font-size:11px;font-weight:500;color:var(--txt2);
+    padding:6px 2px;text-align:center;background:var(--card);
+    border-bottom:1px solid var(--line);border-right:1px solid var(--line2);
+    white-space:nowrap}
+  table.gx thead th{position:sticky;top:0;z-index:2}
+  .gx-cls{font-weight:500!important;letter-spacing:-.3px}
+  .gx-corner{position:sticky;left:0;background:var(--card);z-index:3;
+    text-align:left!important;padding-left:8px!important;
+    width:58px;min-width:58px;border-right:1.5px solid var(--line)!important}
+  .gx-corner-b{font-size:11px!important;color:var(--txt3)!important}
+
+  /* 行首：星期 + 日期 */
+  /* 行首三行：星期 / 日期 / 第几周 */
+  .gx-rowh{position:sticky;left:0;background:var(--card);z-index:1;
+    text-align:left!important;padding:4px 6px!important;
+    width:58px;min-width:58px;
+    border-right:1.5px solid var(--line)!important;
+    border-bottom:1px solid var(--line2);
+    vertical-align:middle;line-height:1.25}
+  .gx-rowh .rh-wd{display:block;font-style:normal;font-size:12.5px;
+    color:var(--txt);font-weight:600;letter-spacing:-.2px}
+  .gx-rowh .rh-dt{display:block;font-style:normal;font-size:9.5px;
+    color:var(--txt2);font-weight:400;margin-top:1px;
+    font-variant-numeric:tabular-nums;letter-spacing:-.3px;white-space:nowrap}
+  .gx-rowh .gx-st{display:inline-block;margin-top:2px}
+  /* 行首日期可点：打开当天明细（sticked 本身已建立定位上下文，不要改成 relative） */
+  .gx-rowh.rowh-tap{cursor:pointer;transition:background .12s}
+  .gx-rowh.rowh-tap:hover{background:var(--blue-bg)}
+  .gx-rowh.rowh-tap:active{background:var(--blue-bg)}
+  .gx-rowh .rh-more{display:none}
+  .gx-rowh.rowh-tap .rh-more{display:block;position:absolute;right:2px;top:50%;
+    transform:translateY(-50%);font-style:normal;font-size:13px;
+    color:var(--txt3);line-height:1;pointer-events:none}
+  .gx-row.st-hol .gx-rowh.rowh-tap:hover,
+  .gx-row.st-off .gx-rowh.rowh-tap:hover{background:var(--blue-bg)}
+  .gx-row.zeb .gx-rowh{background:var(--rowh)}
+  .gx-row.zeb .gx-cell{background:var(--rowh)}
+
+  /* 格子 */
+  .gx-cell{padding:0;text-align:center;height:var(--rh,38px);cursor:pointer;
+    border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);
+    transition:background .12s;user-select:none;-webkit-user-select:none;
+    vertical-align:middle;overflow:hidden}
+  .gx-cell:last-child{border-right:0}
+  .gx-cell:active{background:var(--blue-bg)}
+  .gx-cell .gx-nm{font-size:12.5px;letter-spacing:-.3px;color:var(--txt);
+    font-weight:500;display:inline-block;line-height:1.3}
+  .gx-cell .gx-blank{display:block;height:1px}
+
+  /* 空班：极淡的斜杠，不用"·"占位（原表是空白的） */
+  .gx-cell.empty{background:transparent;cursor:default}
+  /* 合并格里含未排班的：整格淡底，和纯排班格区分 */
+  .gx-cell.mixed{background:var(--rowh)}
+  .gx-cell.mixed .gx-nm{color:var(--txt2)}
+  .gx-cell.empty:active{background:transparent}
+
+  /* 已改 / 宿管 / 当前日 */
+  .gx-cell.ed{background:var(--amber-bg)}
+  .gx-cell.ed .gx-nm{color:var(--amber);font-weight:600}
+  .gx-cell.dorm .gx-nm{color:var(--purple);font-weight:600}
+  .gx-cell.sel{box-shadow:inset 0 0 0 2px var(--blue)}
+  .gx-cell.ed.sel{box-shadow:inset 0 0 0 2px var(--amber)}
+
+  /* 多段显示 */
+  .gx-cell .gx-multi{display:flex;flex-direction:column;align-items:center;
+    justify-content:center;line-height:1.35;padding:3px 1px;gap:0}
+  .gx-cell .gx-multi .ln{display:flex;align-items:center;gap:3px;
+    font-size:11.5px;max-width:100%;font-weight:500}
+  .gx-cell .gx-multi b{font-style:normal;font-size:9px;font-weight:400;color:var(--txt3)}
+  .gx-cell.multi{height:auto;min-height:var(--rh,38px)}
+  .gx-n{font-style:normal;font-size:8.5px;color:var(--txt3);font-weight:400;
+    margin-left:2px;vertical-align:1px}
+
+  /* 全班同一段时：名字平铺，不写"n段" */
+  .gx-cell .gx-flat{display:flex;flex-wrap:wrap;align-items:center;
+    justify-content:center;column-gap:8px;row-gap:1px;line-height:1.35;
+    padding:3px 1px}
+  .gx-cell .gx-flat span{font-size:12.5px;letter-spacing:-.3px;
+    color:var(--txt);white-space:nowrap}
+  .gx-row.today .gx-flat span{color:var(--today-dk);font-weight:600}
+  .gx-cell.ed .gx-flat span{color:var(--amber);font-weight:600}
+  .gx-cell.dorm .gx-flat span{color:var(--purple);font-weight:600}
+  /* 当天明细里段别分开时，行首那个小标签 */
+  .cls-t .lnb{font-style:normal;font-size:9px;font-weight:400;
+    color:var(--txt3);margin-right:3px}
+
+  /* 放假 / 周末：整行合并 */
+  .gx-cell.holrow{background:var(--line2);cursor:pointer;
+    padding:0 12px;height:var(--rh,38px);border-right:0;
+    text-align:left;white-space:nowrap;overflow:hidden;
+    box-sizing:border-box}
+  .gx-cell.holrow > .hr-in{display:flex;align-items:center;gap:6px;
+    min-width:0;overflow-x:auto}
+  .gx-cell.holrow:hover{background:var(--blue-bg)}
+  .gx-cell.holrow.none{color:var(--txt3);font-size:11.5px;letter-spacing:.2px}
+  .gx-cell.holrow.none > .hr-in{white-space:nowrap}
+  .gx-cell.holrow b{font-size:12px;font-weight:500;color:var(--blue-dk);
+    padding:2px 8px;background:var(--card);border-radius:6px;
+    box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .gx-cell.holrow b i{font-style:normal;font-size:9px;color:var(--txt3);
+    margin-left:4px;font-weight:400}
+  .gx-row.st-off .gx-cell.holrow{background:transparent}
+  .gx-row.st-off .gx-cell.holrow:hover{background:var(--rowh)}
+  .gx-row.st-hol .gx-rowh{background:var(--line2);color:var(--txt3)}
+
+  /* 「值班登记」做成按钮样式，一眼看出能点
+     （必须放在 .gx-cell.holrow b 之后才能覆盖它） */
+  .gx-cell.holrow.none b{display:inline-flex;align-items:center;gap:3px;
+    font-size:12px;font-weight:600;color:var(--blue-dk);
+    background:var(--card);padding:3px 10px;border-radius:7px;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);letter-spacing:1.5px}
+  .gx-cell.holrow.none b i{font-style:normal;font-size:13px;
+    color:var(--blue-dk);margin-left:0;font-weight:400}
+  .gx-cell.holrow.none:hover{background:var(--blue-bg)}
+
+  /* 已登记的名字 + 删除 ✕
+     每个名字包成一个 .hr-chip，✕ 挂在名字右边。
+     ✕ 平时低调显示（淡灰），鼠标移上去或点的那格才变红——
+     平时太扎眼会让她不敢点，但必须一眼看得出"这里能删"。 */
+  .gx-cell.holrow .hr-chip{display:inline-flex;align-items:center;gap:0;
+    flex:0 0 auto}
+  .gx-cell.holrow .hr-x{flex:0 0 auto;width:17px;height:17px;margin-left:2px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:11px;line-height:1;color:var(--txt3);cursor:pointer;
+    border-radius:50%;transition:.15s;user-select:none}
+  .gx-cell.holrow .hr-x:hover{background:var(--red-bg);color:var(--red)}
+  .gx-cell.holrow .hr-x:active{transform:scale(.88)}
+
+  /* 状态标记 */
+  .gx-st{font-style:normal;font-size:8.5px;font-weight:500;padding:0 3px;
+    border-radius:3px;margin-top:1px;display:inline-block;line-height:1.5}
+  .gx-st.hol{background:var(--amber-bg);color:var(--amber)}
+  .gx-st.mk{background:var(--blue-bg);color:var(--blue-dk)}
+
+  .gx-src{font-size:12px;color:var(--txt2);flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gx-tip{font-size:11.5px;color:var(--txt3);flex:0 0 auto}
+  .gx-tipbar{padding:8px 14px;margin:0 12px 12px;font-size:11px;
+    color:var(--txt3);text-align:center;background:rgba(255,255,255,.6);
+    border-radius:8px;border:0.5px solid var(--line2)}
+
+  /* ---------- 主题色板 ---------- */
+  .palette{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .swatch{display:flex;align-items:center;gap:8px;padding:9px 10px;
+    border:1px solid var(--line);border-radius:9px;background:var(--card);text-align:left}
+  .swatch:active{background:var(--rowh)}
+  .swatch.on{border-color:var(--blue);background:var(--blue-bg)}
+  .sw-bar{width:5px;align-self:stretch;border-radius:3px;flex:0 0 5px;min-height:30px}
+  .sw-txt{flex:1;min-width:0}
+  .sw-name{font-size:13px;font-weight:500;color:var(--txt);line-height:1.3}
+  .sw-desc{font-size:10.5px;color:var(--txt3);line-height:1.3;margin-top:1px}
+  .sw-ck{font-size:15px;color:var(--blue);font-weight:700;flex:0 0 auto}
+
+  .hd-ver{flex:0 0 auto;font-size:9.5px;color:#fff;
+    background:rgba(255,255,255,.24);border:1px solid rgba(255,255,255,.30);
+    padding:2px 5px;border-radius:5px;line-height:1.4;
+    font-variant-numeric:tabular-nums;letter-spacing:.3px}
+
+  .fld-lb{font-size:12.5px;color:var(--txt2);margin:10px 0 5px;
+    display:flex;align-items:baseline;gap:7px}
+  .fld-lb i{font-style:normal;font-size:11px;color:var(--txt3);font-weight:400}
+  .wk-now{margin-top:9px;padding:9px 12px;background:var(--blue-bg);
+    border-radius:9px;font-size:12.5px;color:var(--blue-dk)}
+  .wk-now b{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;
+    margin:0 2px}
+
+
+  /* ---------- 栏目栏 = 顶部主导航（主题色底，按钮整体居中） ---------- */
+  .postbar{position:relative;z-index:2;
+    display:flex;gap:8px;
+    /* 左右留等宽空白（右侧给刷新+齿轮两个按钮），内容才能真正视觉居中 */
+    padding:calc(10px + env(safe-area-inset-top)) 84px 10px 14px;
+    justify-content:center;
+    justify-content:safe center;   /* 内容超宽时退回左对齐，不会截掉左半 */
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    background:var(--blue);box-shadow:0 1px 4px rgba(47,58,66,.10)}
+  .postbar::-webkit-scrollbar{display:none}
+  .postbar button{flex:0 0 auto;display:flex;align-items:center;gap:5px;
+    padding:7px 13px;border-radius:11px;
+    background:rgba(255,255,255,.20);color:#fff;font-size:13px;
+    font-family:inherit;white-space:nowrap;line-height:1.3;
+    border:1px solid rgba(255,255,255,.16);
+    transition:background .15s,border-color .15s}
+  .postbar button .pi{font-size:14px;line-height:1;flex:0 0 auto;
+    filter:saturate(1.1)}
+  .postbar button .pn{font-size:13px;letter-spacing:-.2px}
+  .postbar button:active{background:rgba(255,255,255,.32)}
+  .postbar button.on{background:#fff;color:var(--blue-dk);font-weight:600;
+    border-color:#fff;box-shadow:0 1px 3px rgba(47,58,66,.14)}
+
+  /* ---------- 右上角齿轮（设置） ---------- */
+  .hd-gear{flex:0 0 auto;width:30px;height:30px;border-radius:9px;
+    background:rgba(255,255,255,.24);color:#fff;
+    border:1px solid rgba(255,255,255,.32);
+    box-shadow:0 1px 3px rgba(47,58,66,.12);
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s}
+  .hd-gear:active{background:rgba(255,255,255,.35)}
+  .hd-gear.on{background:#fff;color:var(--blue-dk)}
+
+  .hd-gear svg{width:17px;height:17px;display:block}
+
+  /* 点刷新时转一圈，表示"正在拉数据"，别让人以为没点上 */
+  .hd-gear.spin svg{animation:gearspin .85s linear infinite}
+  @keyframes gearspin{to{transform:rotate(360deg)}}
+
+  /* ---------- 底部统计按钮 ---------- */
+  .btab-st{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);z-index:60;
+    display:flex;align-items:center;gap:6px;
+    padding:10px 26px;border-radius:22px;
+    background:var(--blue);color:#fff;font-size:14px;font-weight:600;
+    font-family:inherit;letter-spacing:1px;
+    box-shadow:0 4px 14px rgba(47,58,66,.18),0 1px 3px rgba(47,58,66,.1);
+    transition:transform .15s,box-shadow .15s}
+  .btab-st:active{transform:translateX(-50%) scale(.96)}
+  .btab-st svg{width:16px;height:16px;display:block}
+  .btab-st.on{background:var(--txt2);box-shadow:0 2px 8px rgba(47,58,66,.14)}
+  /* 统计页/设置页打开时隐藏（那是独立页面，有自己的返回） */
+  body.pg-st .btab-st, body.pg-set .btab-st{display:none}
+
+  /* 底部版本徽章（小圆点，不抢视线） */
+  .bver{position:fixed;left:14px;
+    bottom:calc(22px + env(safe-area-inset-bottom));z-index:60;
+    width:30px;height:30px;border-radius:50%;
+    background:rgba(255,255,255,.72);color:var(--txt3);
+    border:1px solid var(--line);backdrop-filter:blur(4px);
+    font-family:inherit;font-size:9px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    font-variant-numeric:tabular-nums;letter-spacing:0;
+    box-shadow:0 1px 3px rgba(47,58,66,.06)}
+  .bver:active{background:#fff}
+  /* 检测到新版本：徽章变成提醒点，点一下就刷新 */
+  .bver.dot{background:var(--red);color:#fff;border-color:var(--red);
+    animation:bvpulse 1.2s ease-in-out infinite}
+  @keyframes bvpulse{0%,100%{opacity:1}50%{opacity:.55}}
+  body.pg-st .bver, body.pg-set .bver{display:none}
+
+  .file-h{display:none}
+
+  /* ---------- 名单制栏目页：导入按钮 + 进度弹层 ---------- */
+  .imp-btns{display:flex;gap:8px;padding:12px 14px}
+  .imp-btns .btn{flex:1;padding:12px}
+
+  .imp-prog{padding:26px 20px 22px;display:flex;flex-direction:column;
+    align-items:center;gap:11px;min-width:230px}
+  .imp-prog .bar{display:block;width:100%;height:7px;border-radius:99px;
+    background:var(--rowh);overflow:hidden}
+  .imp-prog .bar > span{display:block;height:100%;width:0;border-radius:99px;
+    background:var(--blue);transition:width .2s ease}
+  .imp-prog .pct{font-size:12.5px;color:var(--txt3);
+    font-variant-numeric:tabular-nums}
+</style>
+
+<script>
+/* JS 加载失败时的兜底提示（防止白屏看不懂原因） */
+window.addEventListener("error", function (e) {
+  if (e.target && e.target.tagName === "SCRIPT") {
+    var d = document.createElement("div");
+    d.style.cssText = "padding:20px;text-align:center;color:#6b7280;font-size:14px";
+    d.innerHTML = "页面加载失败，请下拉刷新重试";
+    document.body.appendChild(d);
+  }
+}, true);
+</script>
+</head>
+<body>
+
+<!-- ⚠️【测试站横幅】正式部署时删除这一段 -->
+<div id="testBanner" style="position:fixed;left:0;right:0;bottom:0;z-index:9999;
+     background:#b45309;color:#fff;font-size:12px;line-height:1.5;
+     padding:6px 10px calc(6px + env(safe-area-inset-bottom));
+     text-align:center;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif">
+  测试站 · 仅验证网页能否打开 · 云端同步已禁用 · 数据不会保存
+</div>
+
+<!-- 栏目切换（顶部主导航） -->
+<div class="postbar" id="postbar"></div>
+
+<!-- 右上角刷新 + 齿轮（固定在栏目栏上） -->
+<div class="topbar">
+  <div class="hd-right">
+    <button class="hd-gear" id="btnReload" onclick="App.reloadNow()" title="刷新（拉取云端最新数据）" aria-label="刷新">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+           stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+        <path d="M21 3v6h-6"/>
+      </svg>
+    </button>
+    <button class="hd-gear" data-act="tab" data-p="set" title="设置" aria-label="设置">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2"/>
+        <path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-1 1.47V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.77.32l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.6 1.6 0 0 0 4.7 15a1.6 1.6 0 0 0-1.47-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.32-1.77l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.6 1.6 0 0 0 9 4.7h.08A1.6 1.6 0 0 0 10 3.23V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.6 1.6 0 0 0 19.3 9v.08a1.6 1.6 0 0 0 1.47 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- 底部：版本徽章 + 统计入口 -->
+<button class="bver" onclick="App.checkVer()" title="点此检查更新">v?</button>
+<button class="btab-st" data-act="tab" data-p="st" id="btabSt">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 15l3-4 3 3 5-6"/>
+  </svg>
+  <span>统计</span>
+</button>
+
+<!-- ============ 栏目切换 ============ -->
+
+
+<!-- ============ 排班 ============ -->
+<div class="pg on" id="pg-cal">
+  <!-- 周次切换 + 今天（同一行：第6周 · 10月5日–11日 · 今天10月9日 星期五） -->
+  <div class="mcard">
+    <div class="mbar">
+      <button data-move="-1">‹</button>
+      <button class="m m-tap" id="mlabel" onclick="App.weekPicker()" title="点一下选择周次"></button>
+      <button data-move="1">›</button>
+    </div>
+  </div>
+
+  <!-- 晚修：矩阵视图（点左边的日期看当天明细） -->
+  <div id="gridwrap"><div id="gridbox"></div></div>
+
+  <!-- 名单制栏目：行政值班 / 校医 / 教辅 / 午休 / 额外加班 -->
+  <div id="rosterwrap" style="display:none"><div id="rosterbox"></div></div>
+
+  <!-- 晚修的月历 + 当天明细 -->
+  <div id="calwrap" style="display:none">
+    <div class="cal"><div class="cal-w" id="cw"></div><div class="cal-g" id="cg"></div></div>
+    <div class="legend">
+      <span><i style="background:var(--amber)"></i>已改动</span>
+      <span><i style="background:var(--blue)"></i>今天</span>
+      <span><i style="background:var(--line2)"></i>周末/放假</span>
+      <span><i style="background:var(--purple)"></i>宿管代班</span>
+    </div>
+    <div id="daypanel"></div>
+  </div>
+</div>
+
+<!-- ============ 统计 ============ -->
+<div class="pg" id="pg-st"></div>
+
+<!-- ============ 设置 ============ -->
+<div class="pg" id="pg-set"></div>
+
+<div class="mask" id="mask" onclick="if(event.target===this)App.closeSheet()">
+  <div class="sheet">
+    <div class="sh-h"><h3 id="sh-t"></h3><button class="sh-x" onclick="App.closeSheet()">✕</button></div>
+    <div class="sh-b" id="sh-b"></div>
+    <div class="sh-f" id="sh-f"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/cloud-sdk.js?v=20261013b"></script>
+<script src="js/xlsx.full.min.js?v=20261013b"></script>
+<script src="js/cloud.v20261013b.js"></script>
+<script src="js/core.v20261013b.js"></script>
+<script src="js/app.v20261013b.js"></script>
+<script>
+/* 微信浏览器对网页缓存很顽固，明明发了新版却还显示旧界面。
+   这里主动去线上问一次「最新的版本号是多少」，
+   和当前页面的版本号一比，不一致就直接把地址换成带时间戳的强制刷新版。
+   —— 她什么都不用管，只要刷新一次就一定是新的。 */
+(function () {
+  var cur = (document.querySelector('meta[name=build]') || {}).content || '';
+  var url = location.pathname + '?r=' + Date.now();
+  fetch(url, { method: 'GET', cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      var m = html.match(/meta name="build" content="([^"]+)"/);
+      var online = m ? m[1] : '';
+      if (online && cur && online !== cur) {
+        location.replace(url);      /* 版本不一致 → 换成强制刷新的地址 */
+      }
+    })
+    .catch(function () { /* 网络不通就算了，不打扰她 */ });
+})();
+</script>
+</body>
+</html>
