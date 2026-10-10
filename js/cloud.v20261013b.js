@@ -5,15 +5,12 @@
 (function () {
   'use strict';
 
-  /* ⚠️【这次部署的改动：只切断云端，保留真实数据】
-     真实数据（教师名单/排班模板）**全部保留**，用于在微信里看真实效果。
-     但这里不连生产后端：凭据换成占位值，且下方所有出口强制短路。
-     这样测试站既能显示真实排班，又不可能读写生产数据。 */
+  /* publicConfig —— 由云服务激活后提供，切勿手改 */
   var CFG = {
-    resourceId:      'DISABLED_FOR_TEST',
-    endpoint:         'https://disabled.invalid',
-    oauthRelayBaseUrl:'https://disabled.invalid',
-    publishableKey:   'DISABLED_FOR_TEST'
+    resourceId:      'REDACTED',
+    endpoint:         'https://redacted.invalid',
+    oauthRelayBaseUrl:'https://redacted.invalid',
+    publishableKey:   'REDACTED'
   };
 
   var _cloud = null;
@@ -190,19 +187,14 @@
     deleteShift: deleteShift,
     saveLink: saveLink,
     loadLink: loadLink,
-    shortCode: shortCode,
-    _disabled: true
+    shortCode: shortCode
   };
 
-  /* ⚠️【这次部署的改动】所有会联网的出口一律短路，不发起任何请求。
-     真实排班数据仍从 core.js 的本地模板渲染，页面看起来和正式站一样；
-     但「宿管登记 / 转发链接 / 云端同步」这些需要后端的操作会失败 ——
-     这是刻意的，避免测试站写到生产库里。 */
-  function disabled() {
-    return Promise.reject(new Error('测试站已禁用云同步'));
-  }
-  ['loadState','saveState','submitShift','loadShift','listDates',
-   'deleteShift','saveLink','loadLink'].forEach(function (k) {
-    window.CloudDuty[k] = disabled;
+  /* 凭据已抹除，联网出口全部短路：不发起任何请求。
+     界面与正式站完全一致，只有需要后端的操作会失败。 */
+  function _off() { return Promise.reject(new Error('云端未配置')); }
+  ['loadState', 'saveState', 'submitShift', 'loadShift', 'listDates',
+   'deleteShift', 'saveLink', 'loadLink'].forEach(function (k) {
+    window.CloudDuty[k] = _off;
   });
 })();
